@@ -44,7 +44,7 @@ flappy_bird/
 
 Run the AI training:
 ```bash
-python main.py
+python flappy_bird.py
 ```
 
 The game window will open showing:
