@@ -24,8 +24,10 @@ class Pipe:
         
     def set_height(self):
         self.height = random.randrange(50, 450) #random height of the pipe
-        self.top = self.height - self.PIPE_TOP.get_height() #bottom of the top pipe !!!doubt
+        self.top = self.height - self.PIPE_TOP.get_height()  #bottom of the top pipe !!!doubt
+        # self.top is top left pos of top pipe coordinate. so to get the top left pos of the top pipe we need to subtract the height of the pipe from the height of the gap.
         self.bottom = self.height + self.GAP # top of the bottom pipe
+        # self.bottom is top left pos of bottom pipe.
     
     def move(self):
         self.x -= self.VEL
@@ -33,24 +35,30 @@ class Pipe:
         
     def draw(self, win):
         win.blit(self.PIPE_TOP, (self.x, self.top))
-        win.blit(self.PIPE_BOTTOM, (self.x, self.bottom))    
+        win.blit(self.PIPE_BOTTOM, (self.x, self.bottom))
+
+    def draw_offset(self, win, x_offset):
+        """Draw the pipe at an x-offset (for split-screen mode)."""
+        win.blit(self.PIPE_TOP, (self.x + x_offset, self.top))
+        win.blit(self.PIPE_BOTTOM, (self.x + x_offset, self.bottom))
+
     
     
-    #!IMPORT
+    #!IMPORT For Pixel perfect collision detection we use masks. A mask is a 2D bit array where each pixel is either 1 (solid) or 0 (transparent). Pygame provides a Mask class that can be used for this purpose. The collide method checks if the bird's mask overlaps with the pipe's mask, indicating a collision.
     def collide(self, bird):
         bird_mask = bird.get_mask()
         top_mask = pygame.mask.from_surface(self.PIPE_TOP)
         bottom_mask = pygame.mask.from_surface(self.PIPE_BOTTOM)    
         
         #get the mask of the bird and the top and bottom pipe.
-        #round of bord y as it is a float value.
+        #round of bird y as it is a float value.
         top_offset = (self.x - bird.x, self.top - round(bird.y))
         bottom_offset = (self.x - bird.x, self.bottom - round(bird.y))
         
         
         #check for collision
-        b_point = bird_mask.overlap(top_mask, top_offset) #get the point of collision
-        t_point = bird_mask.overlap(bottom_mask, bottom_offset) #get the point of collision
+        t_point = bird_mask.overlap(top_mask, top_offset) #get the point of collision
+        b_point = bird_mask.overlap(bottom_mask, bottom_offset) #get the point of collision
         
         if b_point or t_point: #if there is a point of collision
             return True #collision detected

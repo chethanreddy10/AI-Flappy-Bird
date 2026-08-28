@@ -1,3 +1,4 @@
+
 import pygame
 import os
 
@@ -24,15 +25,15 @@ class Bird:
         self.img=self.IMGS[0]
         #init done
     def jump(self):
-        self.vel = -10.5    #(0,0) is the top left.
-        self.tick_count=0   #reset so that freshly equn can be applied.
+        self.vel = -10.5    #(0,0) is the top left. 
+        self.tick_count=0   #as soon as we jump reset so that freshly equn (displacement) can be applied.
         self.height=self.y  #from where jumping
     
     def move(self):
         self.tick_count+=1 # a tick happend a frame went by
         
         displacement = self.vel*self.tick_count +1.5*self.tick_count**2
-        # -10.5*1 +1.5*1**2=-9 9 pixels upward..
+        # -10.5*1 +1.5*1**2=-9 => 9 pixels upward..
         #upwards is - disp downword is pos disp
         #there 3 is the arbitary g constant instead of real for smooth exp
         
@@ -43,7 +44,7 @@ class Bird:
             displacement = 16
         
         if displacement<0:
-            displacement-=2 # Makes upward jumps feel more responsive and floaty.
+            displacement-=2 # Makes upward jumps feel more responsive and floaty. your choice!
         
         self.y=self.y + displacement
         
@@ -55,37 +56,47 @@ class Bird:
             if self.tilt > -90:
                 self.tilt -= self.ROT_VEL
                        
-    def draw(self,win):            
-        self.img_count+=1
-         
+    def _animate(self):
+        """Update the bird animation frame."""
+        self.img_count += 1
+        
         if self.img_count < self.ANIMATION_TIME:
-             self.img = self.IMGS[0]    
+            self.img = self.IMGS[0]
         elif self.img_count < self.ANIMATION_TIME*2:
             self.img = self.IMGS[1]
         elif self.img_count < self.ANIMATION_TIME*3:
-            self.img = self.IMGS[2] 
+            self.img = self.IMGS[2]
         elif self.img_count < self.ANIMATION_TIME*4:
             self.img = self.IMGS[1]
         elif self.img_count >= self.ANIMATION_TIME*4 + 1:
             self.img = self.IMGS[0]
             self.img_count = 0
-        # up up up down down down flap pos
-        
+
         if self.tilt <= -80:
-            #if bird is falling down. so it should be flat. not flapping
             self.img = self.IMGS[1]
             self.img_count = self.ANIMATION_TIME*2
-            # so that when again it flaps it starts from the first img. so no frame skip.
-            
-        #now for rotaion and drawing the bird.
-        #as all our images are levelled. for jump or down bird rotaiton is done by rotating the image.
-        rotated_image = pygame.transform.rotate(self.img, self.tilt) #rotate the image we keep track of ,by tilt angle    
-        #rotate from top left corner of the image. looks weird.
+
+    def draw(self, win):
+        self._animate()
+        rotated_image = pygame.transform.rotate(self.img, self.tilt)
         new_rect = rotated_image.get_rect(center=self.img.get_rect(topleft=(self.x, self.y)).center)
-        #rotates the image and keeps the center of the image same as before.
-        win.blit(rotated_image, new_rect.topleft) #draw the rotated image
-        #blit the image on the window at the top left corner of the image.
+        # rotate the image about the center of the bird's rectangle, and then get the new rectangle that bounds the rotated image. This ensures that the bird is drawn at the correct position after rotation.
+        win.blit(rotated_image, new_rect.topleft)
+        # blit -> blit is a method in Pygame that draws one image onto another. In this case, it draws the rotated bird image onto the game window.
+        # win -> the game window (destination)
+        # rotated_image   -> bird image after rotation (source)
+        # new_rect.topleft -> where to place it
+        # Draw the rotated bird image on the window at this position.
+
+    def draw_offset(self, win, x_offset):
+        """Draw the bird at an x-offset (for split-screen mode)."""
+        self._animate()
+        rotated_image = pygame.transform.rotate(self.img, self.tilt)
+        new_rect = rotated_image.get_rect(center=self.img.get_rect(topleft=(self.x + x_offset, self.y)).center)
+        win.blit(rotated_image, new_rect.topleft)
+
 
     def get_mask(self):
         return pygame.mask.from_surface(self.img)
     #get the mask of the image for collision detection.
+
