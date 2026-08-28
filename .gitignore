@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+
+# Python virtual environments
+venv/
+.venv/
+
+# # Generated results -- training logs, model checkpoints, etc.
+# results/
