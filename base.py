@@ -35,3 +35,10 @@ class Base:
     def draw(self, win):
         win.blit(self.IMG, (self.x1, self.y))
         win.blit(self.IMG, (self.x2, self.y))
+
+    def draw_offset(self, win, x_offset):
+        """Draw the base at an x-offset (for split-screen mode)."""
+        win.blit(self.IMG, (self.x1 + x_offset, self.y))
+        win.blit(self.IMG, (self.x2 + x_offset, self.y))
+
+
